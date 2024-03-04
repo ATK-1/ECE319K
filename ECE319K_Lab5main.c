@@ -257,7 +257,7 @@ void SysTick_Handler(void){
   // output one value to DAC
     Pointer=SinWave;
     DAC5_Out(*Pointer);
-    Pointer=(Pointer+1)&0x01F
+    Pointer=(Pointer+1)&0x01F;
     }
 }
 
