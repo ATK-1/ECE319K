@@ -188,33 +188,33 @@ int main(void){// main6
 // if key goes from pressed to not pressed
 //   -call Sound_Stop
 // I.e., if key has not changed DO NOT CALL start or stop
-     now=Key_In();
-     if(now==last){
-     }
-     else if(now==0){
-         Sound_Stop();
-     }
-     else{
-         if(now==1){
+         now=Key_In();
+             if(now!=last){
+
+             if(now==1){
              Sound_Start(4509);
              Debug_Dump(4509);
-         }
-         else if(now==2){
+             }
+
+             if(now==2){
              Sound_Start(3580);
              Debug_Dump(3580);
-         }
-         else if(now==4){
+             }
+
+             if(now==4){
              Sound_Start(3010);
              Debug_Dump(3010);
-         }
-         else if(now==8){
+             }
+
+             if(now==8){
              Sound_Start(2681);
              Debug_Dump(2681);
-         }
-     }
-    last=now;
-    Clock_Delay(800000); // 10ms, to debounce switch
-  }
+             }
+             }
+             last=now;
+
+
+     Clock_Delay(800000); // 10ms, to debounce switch
 }
 // To grade you must connect PB20 to your DACout
 // Run main6 with Lab5Grader(3);   // Grader
