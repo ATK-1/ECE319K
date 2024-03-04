@@ -24,7 +24,6 @@ void Key_Init(void){
     IOMUX->SECCFG.PINCM[PB17INDEX]= 0x00040081;
     IOMUX->SECCFG.PINCM[PB18INDEX]= 0x00040081;
     IOMUX->SECCFG.PINCM[PB19INDEX]= 0x00040081;
-    GPIOB->DOE31_0 = (0xFFF0FFFF & GPIOB->DOE31_0);
 // Assumes LaunchPad_Init has been called
 // I.e., PortB has already been reset and activated (do not reset PortB here again)
   // write this
