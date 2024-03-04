@@ -23,6 +23,11 @@ const char EID2[] = "ATK836"; // replace abc123 with your EID
 void Sound_Init(uint32_t period, uint32_t priority);
 void Sound_Start(uint32_t period);
 void Sound_Stop(void);
+const uint8_t *Pointer;
+const uint8_t SinWave[32] = {
+16,19,22,24,27,28,30,31,31,
+31,30,28,27,24,22,19,16,13,10,
+8,5,4,2,1,1,1,2,4,5,8,10,13};
 
 // use main1 to determine Lab5 assignment
 void Lab5Grader(int mode);
@@ -163,7 +168,8 @@ int main5(void){// main5
 // TExaSdisplay scope uses TimerG7, ADC0
 // To perform dynamic testing, there can be no breakpoints in your code
 // DACout will be a sine wave with period/frequency depending on which key is pressed
-int main6(void){// main6
+int main(void){// main6
+    __disable_irq();
   Clock_Init80MHz(0);
   LaunchPad_Init();
   Grader_Init();   // execute this line before your code
@@ -174,6 +180,7 @@ int main6(void){// main6
   Debug_Init();    // Lab 3 debugging
   uint32_t last=0;
   uint32_t now;
+  __enable_irq();
   while(1){
 // if key goes from not pressed to pressed
 //   -call Sound_Start with the appropriate period
@@ -181,7 +188,7 @@ int main6(void){// main6
 // if key goes from pressed to not pressed
 //   -call Sound_Stop
 // I.e., if key has not changed DO NOT CALL start or stop
-     now=Key_In()
+     now=Key_In();
      if(now==last){
      }
      else if(now==0){
@@ -205,7 +212,7 @@ int main6(void){// main6
              Debug_Dump(2681);
          }
      }
-    last=now
+    last=now;
     Clock_Delay(800000); // 10ms, to debounce switch
   }
 }
@@ -219,8 +226,12 @@ int main6(void){// main6
 // Input: interrupts every 12.5ns*period
 //        priority is 0 (highest) to 3 (lowest)
 void Sound_Init(uint32_t period, uint32_t priority){
-  // write this
-    SysTick->CTRL = 5;
+    SysTick_Init();
+    SysTick->CTRL =0;
+    SysTick->LOAD = period-1;
+    SysTick->VAL = 1;
+    SysTick->CTRL =7;
+    SCB->SHP[priority] = SCB->SHP[priority]&(~0xC0000000)|0x40000000;
 
 }
 void Sound_Stop(void){
@@ -244,14 +255,14 @@ void Sound_Start(uint32_t period){
 void SysTick_Handler(void){
   // write this
   // output one value to DAC
-    DAC5_OUT(*Pointer)
-    if(Pointer>=(Wave+255)){
-        Pointer=Wave
-    }
-    else{
-        Pointer++
+    Pointer=SinWave;
+    DAC5_Out(*Pointer);
+    Pointer=(Pointer+1)&0x01F
     }
 }
+
+
+
 
 
 
