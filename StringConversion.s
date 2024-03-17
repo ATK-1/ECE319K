@@ -1,6 +1,6 @@
 // StringConversion.s
-// Student names: change this to your names or look very silly
-// Last modification date: change this to the last modification date or look very silly
+// Student names: Luis Aceves-Iniguez and Ashton Knecht
+// Last modification date: 3/17/2024
 // Runs on any Cortex M0
 // ECE319K lab 6 number to string conversion
 //
@@ -77,9 +77,35 @@ next:
 // Output: none
 // Invariables: This function must not permanently modify registers R4 to R11
 OutDec:
-    PUSH {LR}
+    PUSH {R4,R5,R7,LR}
+    MOVS R4,#0 // Binding
+    MOV R7,SP
+    SUB SP,SP,#20 // Allocation
 
-    POP  {PC}
+    MOVS R5,0x30
+    DOWHILE:
+
+
+    BL udivby10
+    SUBS R4,#4
+    ADDS R1,R1,R5
+    STR R1,[R7,R4]
+
+    CMP R0,#0
+    BNE DOWHILE
+
+	OUTPUT:
+	//BL SPIOutData
+	LDR R0,[R7,R4]
+	BL OutChar
+	ADDS R4,#4
+	BNE OUTPUT
+
+
+
+    END:
+    ADD SP,SP,#20 // Deallocation
+    POP  {R4,R5,R7,PC}
 //* * * * * * * * End of OutDec * * * * * * * *
 
 

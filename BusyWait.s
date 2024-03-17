@@ -1,6 +1,6 @@
 // BusyWait.s
-// Student names: change this to your names or look very silly
-// Last modification date: change this to the last modification date or look very silly
+// Student names: Luis Aceves-Iniguez and Ashton Knecht
+// Last modification date: 3/17/2024
 
 
 // Note: these functions do not actually output to SPI or Port A. 
