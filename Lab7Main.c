@@ -29,7 +29,7 @@ void OutFix(uint32_t n){
 // resolution is 0.001cm
 // n is integer 0 to 2000
 // output to ST7735 0.000cm to 2.000cm
-  
+    printf("d=%1u.%.3u cm",n/1000,n%1000);  // fixed point output
 }
 
 // do not use this function
@@ -69,7 +69,7 @@ int main1(void){ // main1
 // ADCtime is the time to execute ADCin in bus cycles
 // use main2 to calibrate the system fill in 5 points in Calibration.xls
 //    determine constants k1 k2 to fit Position=(k1*Data)>>12 + k2
-int main(void){ // main2
+int main2(void){ // main2
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -163,6 +163,9 @@ void TIMG12_IRQHandler(void){
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     Time++;
+
+    Data = ADCin();
+    Flag = 1;
     // sample 12-bit ADC0 channel 5, slidepot
     // store data into mailbox
     // set the semaphore
@@ -176,7 +179,7 @@ uint8_t TExaS_LaunchPadLogicPB27PB26(void){
 // use scope or logic analyzer to verify real time samples
 // option 1) remove call to TExaS_Init and use a real scope on PB27
 // option 2) use TExaS logic analyzer
-int main5(void){ // main5
+int main(void){ // main5
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -190,6 +193,7 @@ int main5(void){ // main5
     // initialize interrupts on TimerG12 at 30 Hz
 
   // initialize semaphore
+  Flag=0;
   Time = 0;
   __enable_irq();
 
@@ -197,11 +201,21 @@ int main5(void){ // main5
 	  // write this
     // wait for semaphore
     // clear the semaphore
+
+      while(Flag == 0){}
+      Flag = 0;
+
     GPIOB->DOUTTGL31_0 = RED; // toggle PB26 (minimally intrusive debugging)
      // toggle red LED2 on Port B, PB26
       // convert Data to Position
       // move cursor to top
      // display distance in top row OutFix
+
+    Position = Convert(Data);
+    ST7735_SetCursor(0,0);
+    OutFix(Position);
+
+
     Time++;
     if((Time%15)==0){
       ST7735_PlotPoint(Position);
