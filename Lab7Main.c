@@ -191,9 +191,22 @@ int main(void){ // main5
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
   ST7735_PlotClear(0,2000);
     // initialize interrupts on TimerG12 at 30 Hz
+  //TIMG12->GPRCM.RSTCTL = 0xB1000003;    // Reset Clock
+  //TIMG12->GPRCM.PWREN = 0x26000001;     // Activate Timer
+  //Clock_Delay(24);                      // Waiting for TimerG12 to Power Up
+  //TIMG12->CLKSEL = 0x08;                // Bus Clock
+  //TIMG12->CLKDIV = 0x00;                // Divide by 1 - Bus Clock
+  //TIMG12->COUNTERREGS.LOAD = 2666666;    // Load= Bus Cycles - 1
+  //TIMG12->COUNTERREGS.CTRCTL = 0x02;    // Continuous Down Counting
+  //TIMG12->CPU_INT.IMASK = 1;            // Arm Periodic Interrupt
+  //TIMG12->COMMONREGS.CCLKCTL = 1;
+  //NVIC->ISER[0] = 1 << 21; // TIMG12 interrupt
+ //NVIC->IP[4] = (NVIC->IP[4]&(~0x000000FF))|(1<<6);         // set priority (bits 7,6) IRQ 16
+  //TIMG12->COUNTERREGS.CTRCTL |= 0x01;
+  TimerG12_IntArm(2666667,0);
 
   // initialize semaphore
-  Flag=0;
+  Flag = 0;
   Time = 0;
   __enable_irq();
 
