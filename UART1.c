@@ -1,5 +1,5 @@
 /* UART1.c
- * Your name
+ * Luis Aceves and Ashton Knecht
  * Date:
  * PA8 UART1 Tx to other microcontroller PA22 UART2 Rx
  */
