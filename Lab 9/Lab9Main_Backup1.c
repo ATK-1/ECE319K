@@ -29,9 +29,7 @@
 list_t Deck_List;
 list_t User_List;
 list_t Opp_List;
-
-list_node_t ListNodes[112];
-card_t Cards[112];
+#define NULL 0
 
 // Function Declarations
 void discard(struct list_node* removed_node);
@@ -242,122 +240,81 @@ int main5(void){ // final main
 
 // Function Definitions -
 
-void discard(list_node_t* removed_node){
-    if(removed_node->card_pointer->in_deck == user){
-        list_remove(&User_List,removed_node); // Remove From User's Hand
-    }
-    if(removed_node->card_pointer->in_deck == opp){
-        list_remove(&Opp_List,removed_node); // Remove From Opponent's Hand
-    }
-    removed_node->card_pointer->in_deck= dis; // Symbolizes Discarded
-
-    list_add(&Deck_List,removed_node); // Adding to the Back of the Deck (Where Discards are held)
-}
-
-void draw(list_t* player_hand, list_node_t* card_node){
-    if(player_hand->id == user){
-        card_node->card_pointer->in_deck= user ; // Sent to User's Hand
-    }
-    if(player_hand->id == opp){
-            card_node->card_pointer->in_deck= opp; // Sent to Opponent's Hand
-        }
-    list_remove(&Deck_List,card_node); // Removes Card From Deck
-    list_add(player_hand,card_node); // Adds Card to Player Hand
-}
+//void discard(struct list_node_t* removed_node){
+//    if(list_node->card->in_deck == 2){
+//        list_remove(User_List,removed_node); // Remove From User's Hand
+//    }
+//    if(list_node->card->in_deck == 3){
+//        list_remove(Opp_List,removed_node); // Remove From Opponent's Hand
+//    }
+//    removed_node->card->in_deck=0; // Symbolizes Discarded
+//
+//    list_add(Deck_List,removed_node); // Adding to the Back of the Deck
+//}
+//
+//void draw(list_t* player_hand, list_node_t* card_node){
+//    if(player_hand == User_List){
+//        card_node->card->in_deck=2; // Sent to User's Hand
+//    }
+//    if(player_hand == Opp_List){
+//            card_node->card->in_deck=3; // Sent to Opponent's Hand
+//        }
+//    list_remove(Deck_List,card_node); // Removes Card From Deck
+//    list_add(player_hand,card_node); // Adds Card to Player Hand
+//}
 
 
 void game_init(void){
     list_init(&Deck_List);
     list_init(&User_List);
     list_init(&Opp_List);
-    uint32_t index=0;
     for(uint8_t color=0; color<= 3 ; color++){
         for(uint8_t value=0; value<=9; value++){
 
-            Cards[index].value= value; // Init Card
-            Cards[index].color = color;
-            Cards[index].in_deck = deck;
-            Cards[index].power = 0;
-            ListNodes[index].card_pointer = &Cards[index]; // Init Node
-            list_add(&Deck_List, &ListNodes[index]); // Add to Deck
-            index++;
+            card_t card1={value,color,0,1,NULL,NULL,NULL,NULL,NULL}; // Init Card
+            list_node_t listnode1 ={NULL,NULL,&card1}; // Init Node
+            list_add(&Deck_List, &listnode1); // Add to Deck
 
-            Cards[index].value= value; // Init Card
-            Cards[index].color = color;
-            Cards[index].in_deck = deck;
-            Cards[index].power = 0;
-            ListNodes[index].card_pointer = &Cards[index]; // Init Node
-            list_add(&Deck_List, &ListNodes[index]); // Add to Deck
-            index++;
+            card_t card2={value,color,0,1,NULL,NULL,NULL,NULL,NULL};
+            list_node_t listnode2 ={NULL,NULL,&card2}; // Init Node
+            list_add(&Deck_List, &listnode2); // Add to Deck
         }
-        Cards[index].value= 10; // Skip
-        Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 1;
-        ListNodes[index].card_pointer = &Cards[index];
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+        card_t card3={10,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Skip Turn Card
+        list_node_t listnode1 ={NULL,NULL, &card3};
+        list_add(&Deck_List, &listnode1);
 
-        Cards[index].value= 10; // Skip
-        Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 1;
-        ListNodes[index].card_pointer = &Cards[index];
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+        card_t card4={10,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Skip Turn Card
+        list_node_t listnode2={NULL,NULL,&card4};
+        list_add(&Deck_List, &listnode2);
 
-        Cards[index].value= 11; // Reverse
-        Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 1;
-        ListNodes[index].card_pointer = &Cards[index]; // Init Node
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
 
-        Cards[index].value= 11; // Reverse
-        Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 0;
-        ListNodes[index].card_pointer = &Cards[index]; // Init Node
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+        card_t card5={11,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Reverse Card
+        list_node_t listnode3={NULL,NULL,&card5};
+        list_add(&Deck_List, &listnode3);
 
-        Cards[index].value= 12; // Reverse
-        Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 2;
-        ListNodes[index].card_pointer = &Cards[index]; // Init Node
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+        card_t card6={11,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Reverse Card
+        list_node_t listnode4={NULL,NULL,&card6};
+        list_add(&Deck_List, &listnode4);
 
-        Cards[index].value= 12; // +2
-        Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 2;
-        ListNodes[index].card_pointer = &Cards[index]; // Init Node
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+        card_t card7={12,color,2,1,NULL,NULL,NULL,NULL,NULL}; // +2 Card
+        list_node_t listnode5={NULL,NULL,&card7};
+        list_add(&Deck_List,&listnode5);
+
+        card_t card8={12,color,2,1,NULL,NULL,NULL,NULL,NULL}; // +2 Card
+        list_node_t listnode6={NULL,NULL,&card8};
+        list_add(&Deck_List,&listnode6);
     }
 
-    for(uint32_t increment=0; increment<4; increment++){
-        Cards[index].value= 13; // Wild
-        //Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 3;
-        ListNodes[index].card_pointer = &Cards[index]; // Init Node
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+    for(uint32_t index=0; index<4; index++){
+        card_t card1={13,NULL,3,1,NULL,NULL,NULL,NULL,NULL}; // Wild
+        list_node_t listnode1={NULL,NULL,&card1};
+        list_add(&Deck_List, &listnode1);
 
-        Cards[index].value= 13; // Wild +4
-        //Cards[index].color = color;
-        Cards[index].in_deck = deck;
-        Cards[index].power = 4;
-        ListNodes[index].card_pointer = &Cards[index]; // Init Node
-        list_add(&Deck_List, &ListNodes[index]);
-        index++;
+        card_t card2={13,NULL,4,1,NULL,NULL,NULL,NULL,NULL}; // +4 Wild
+        list_node_t listnode2={NULL,NULL,&card2};
+        list_add(&Deck_List, &listnode2);
     }
-
-
+    // Add Function/Operation to Draw Players 7 cards
 }
 
 
@@ -368,25 +325,7 @@ int main(void){ // Main 6 Testing game_init
     PLL_Init(); // set bus speed
     LaunchPad_Init();
     game_init();
-    list_node_t* node;
-    uint8_t card_value;
-    uint8_t card_color;
     while(1){
-        node= Deck_List.head;
-        for(uint32_t index=0; index<112; index++){
-            card_value = node->card_pointer->value;
-            card_color = node->card_pointer->color;
-            node = list_traverse(node);
-        }
+
     }
-}
-
-
-
-int main7(void){ // Main 7 Testing Draw 7
-    PLL_Init(); // set bus speed
-    LaunchPad_Init();
-    game_init();
-
-    // Write Code to Test a future draw7 function
 }

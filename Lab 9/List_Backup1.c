@@ -25,13 +25,14 @@ void list_add(list_t* host_list,list_node_t* added_node){
     if(host_list->head == NULL){
         host_list->head = added_node;
         host_list->tail = added_node;
-         }
-    else{
-        host_list->tail->next = added_node;
-        added_node->previous = host_list->tail;
-        added_node->next = NULL;
-        host_list->tail = added_node;
+        host_list->length++;
+        return;
     }
+
+    host_list->tail->next = added_node;
+    added_node->previous = host_list->tail;
+    added_node->next = NULL;
+    host_list->tail = added_node;
     host_list->length++;
 }
 
@@ -52,8 +53,5 @@ list_node_t *get_first_node(list_t* host_list) {
     return NULL;
 }
 
-list_node_t* list_traverse(list_node_t* initial_node){
-    return initial_node->next;
-}
 
 
