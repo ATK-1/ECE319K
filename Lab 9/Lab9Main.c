@@ -19,39 +19,21 @@
 #include "Switch.h"
 #include "Sound.h"
 #include "images/images.h"
+#include "List.h"
 // ****note to ECE319K students****
 // the data sheet says the ADC does not work when clock is 80 MHz
 // however, the ADC seems to work on my boards at 80 MHz
 // I suggest you try 80MHz, but if it doesn't work, switch to 40MHz
 
 
+list_t Deck_List;
+list_t User_List;
+list_t Opp_List;
+#define NULL 0
 
-
-// Somehow Initialize the cards lol - figure this out later - possibly have to do this all one by one
-
-// New Function - Meant to be given a node of card and send that node to the back of Deck (discarded)
-void discard(struct list_node* removed_node){
-    if(list_node->card->in_deck == 2){
-        list_remove(User_List,removed_node); // Remove From User's Hand
-    }
-    if(list_node->card->in_deck == 3){
-        list_remove(Opp_List,removed_node); // Remove From Opponent's Hand
-    }
-    removed_node->card->in_deck=0; // Symbolizes Discarded
-
-    list_add(Deck_List,removed_node); // Adding to the Back of the Deck
-}
-
-void draw(struct list* player_hand, struct list_node* card_node){
-    if(player_hand == User_List){
-        card_node->card->in_deck=2; // Sent to User's Hand
-    }
-    if(player_hand == Opp_List){
-            card_node->card->in_deck=3; // Sent to Opponent's Hand
-        }
-    list_remove(Deck_List,card_node); // Removes Card From Deck
-    list_add(player_hand,card_node); // Adds Card to Player Hand
-}
+// Function Declarations
+void discard(struct list_node* removed_node);
+void draw(struct list* player_hand, struct list_node* card_node);
 
 
 
@@ -112,7 +94,7 @@ const char *Phrases[3][4]={
   {Language_English,Language_Spanish,Language_Portuguese,Language_French}
 };
 // use main1 to observe special characters
-int main(void){ // main1
+int main1(void){ // main1
     char l;
   __disable_irq();
   PLL_Init(); // set bus speed
@@ -251,3 +233,99 @@ int main5(void){ // final main
 
 
 
+
+
+
+
+
+// Function Definitions -
+
+//void discard(struct list_node_t* removed_node){
+//    if(list_node->card->in_deck == 2){
+//        list_remove(User_List,removed_node); // Remove From User's Hand
+//    }
+//    if(list_node->card->in_deck == 3){
+//        list_remove(Opp_List,removed_node); // Remove From Opponent's Hand
+//    }
+//    removed_node->card->in_deck=0; // Symbolizes Discarded
+//
+//    list_add(Deck_List,removed_node); // Adding to the Back of the Deck
+//}
+//
+//void draw(list_t* player_hand, list_node_t* card_node){
+//    if(player_hand == User_List){
+//        card_node->card->in_deck=2; // Sent to User's Hand
+//    }
+//    if(player_hand == Opp_List){
+//            card_node->card->in_deck=3; // Sent to Opponent's Hand
+//        }
+//    list_remove(Deck_List,card_node); // Removes Card From Deck
+//    list_add(player_hand,card_node); // Adds Card to Player Hand
+//}
+
+
+void game_init(void){
+    list_init(&Deck_List);
+    list_init(&User_List);
+    list_init(&Opp_List);
+    for(uint8_t color=0; color<= 3 ; color++){
+        for(uint8_t value=0; value<=9; value++){
+
+            card_t card1={value,color,0,1,NULL,NULL,NULL,NULL,NULL}; // Init Card
+            list_node_t listnode1 ={NULL,NULL,&card1}; // Init Node
+            list_add(&Deck_List, &listnode1); // Add to Deck
+
+            card_t card2={value,color,0,1,NULL,NULL,NULL,NULL,NULL};
+            list_node_t listnode2 ={NULL,NULL,&card2}; // Init Node
+            list_add(&Deck_List, &listnode2); // Add to Deck
+        }
+        card_t card3={10,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Skip Turn Card
+        list_node_t listnode1 ={NULL,NULL, &card3};
+        list_add(&Deck_List, &listnode1);
+
+        card_t card4={10,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Skip Turn Card
+        list_node_t listnode2={NULL,NULL,&card4};
+        list_add(&Deck_List, &listnode2);
+
+
+        card_t card5={11,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Reverse Card
+        list_node_t listnode3={NULL,NULL,&card5};
+        list_add(&Deck_List, &listnode3);
+
+        card_t card6={11,color,1,1,NULL,NULL,NULL,NULL,NULL}; // Reverse Card
+        list_node_t listnode4={NULL,NULL,&card6};
+        list_add(&Deck_List, &listnode4);
+
+        card_t card7={12,color,2,1,NULL,NULL,NULL,NULL,NULL}; // +2 Card
+        list_node_t listnode5={NULL,NULL,&card7};
+        list_add(&Deck_List,&listnode5);
+
+        card_t card8={12,color,2,1,NULL,NULL,NULL,NULL,NULL}; // +2 Card
+        list_node_t listnode6={NULL,NULL,&card8};
+        list_add(&Deck_List,&listnode6);
+    }
+
+    for(uint32_t index=0; index<4; index++){
+        card_t card1={13,NULL,3,1,NULL,NULL,NULL,NULL,NULL}; // Wild
+        list_node_t listnode1={NULL,NULL,&card1};
+        list_add(&Deck_List, &listnode1);
+
+        card_t card2={13,NULL,4,1,NULL,NULL,NULL,NULL,NULL}; // +4 Wild
+        list_node_t listnode2={NULL,NULL,&card2};
+        list_add(&Deck_List, &listnode2);
+    }
+    // Add Function/Operation to Draw Players 7 cards
+}
+
+
+
+
+
+int main(void){ // Main 6 Testing game_init
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    game_init();
+    while(1){
+
+    }
+}
