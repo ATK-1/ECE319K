@@ -43,7 +43,7 @@ void list_remove(list_t* host_list,list_node_t* removed_node){
     if(host_list->head == removed_node){
         host_list->head = removed_node->next;
     }
-    host_list->length = host_list->length+1;
+    host_list->length--;
     // Nothing References this node, therefore it is fine that the next and previous point to initial nodes
     // We will overwrite this when we add to next list
 }
