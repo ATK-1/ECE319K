@@ -1,0 +1,74 @@
+// use main2 to observe graphics
+int main2(void){ // main2
+  __disable_irq();
+  PLL_Init(); // set bus speed
+  LaunchPad_Init();
+  ST7735_InitPrintf();
+    //note: if you colors are weird, see different options for
+    // ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
+  ST7735_FillScreen(ST7735_BLACK);
+  ST7735_DrawBitmap(4,159, red_0_bordered, 27,44);
+
+  while(1){
+
+  }
+  for(uint32_t t=500;t>0;t=t-5){
+    SmallFont_OutVertical(t,104,6); // top left
+
+    Clock_Delay1ms(50);              // delay 50 msec
+  }
+  ST7735_FillScreen(0x0000);   // set screen to black
+  ST7735_SetCursor(1, 1);
+  ST7735_OutString("GAME OVER");
+  ST7735_SetCursor(1, 2);
+  ST7735_OutString("Nice try,");
+  ST7735_SetCursor(1, 3);
+  ST7735_OutString("Earthling!");
+  ST7735_SetCursor(2, 4);
+  ST7735_OutUDec(1234);
+  while(1){
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int main10(void){ // Main 10 Testing - Add this to
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    ADCinit();
+    uint32_t randindex;
+    for(uint32_t counter=0; counter < 14; counter++){ // For Draw 7 command we are expecting 15 cards total - 7 for this user, 7 for opponent and 1 play card
+        randindex = random_index();
+        Fifo1_Put(0x81);
+        Fifo1_Put(Cards[randindex].global_index);
+        // insert read command
+
+
+        randindex = random_index();
+        Fifo1_Put(0x82);
+        Fifo1_Put(Cards[randindex].global_index);
+        // insert read command
+        }
+     randindex = random_index();
+     Fifo1_Put(0x80);
+     Fifo1_Put(Cards[randindex].global_index);
+     // insert read command
+
+     while(1){
+
+     }
+
+}  
