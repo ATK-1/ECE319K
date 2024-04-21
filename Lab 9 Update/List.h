@@ -40,11 +40,8 @@ struct card{ // Potentially add page variable
     power_t power; // 0 - Nothing, 1 - Skip Turn, 2 - Draw Two, 3 - Wild, 4 - Wild +4
     status_t in_deck; // 0 - discard, 1 - in deck, 2 - User Hand, 3 - Opponent Hand
     uint8_t global_index; // Index sent between devices
-    uint16_t* image_pointer; // Pointer to Spirit Image
-    int32_t x_position; // Sprite x position
-    int32_t y_position; // Sprite y position
-    int32_t x_velocity; // Sprite x velocity
-    int32_t y_velocity; // Sprite y velocity
+    uint8_t page; // Only for when in user's hand
+    uint8_t position; // determining where on page
 };
 typedef struct card card_t;
 
