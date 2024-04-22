@@ -54,17 +54,11 @@ void Sound_UNO(void){
  Sound_Start(7273);
   
 }
-void Sound_CardDown(){
+void Sound_CardDown(void){
  soundPointer = soundCardDown;
     soundCnt=3540;
  Sound_Start(7273);
   
-}
-void Sound_Shuffle(void){
-// soundPointer = soundCardDown;
-//    soundCnt =
-// Sound_Start(7273);
- 
 }
 
 void SysTick_Handler(void){ // called at 11 kHz
@@ -74,4 +68,3 @@ void SysTick_Handler(void){ // called at 11 kHz
       Sound_Stop();
     }
 }
-
