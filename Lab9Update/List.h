@@ -16,6 +16,8 @@ typedef enum {deck,user,opp,dis} status_t;
 typedef enum {red,yellow,blue,green,wild_color} color_t;
 typedef enum {zero,one,two,three,four,five,six,seven,eight,nine,skip,reverse,draw_two,wild} value_t;
 typedef enum {nothing,skip_turn,plus_two,change_color,plus_four} power_t;
+typedef enum {low,high} semaphore_t;
+typedef enum {user_turn,opponent_turn,animation} turn_t;
 
 struct list_node{
     struct list_node* next;
@@ -40,11 +42,8 @@ struct card{ // Potentially add page variable
     power_t power; // 0 - Nothing, 1 - Skip Turn, 2 - Draw Two, 3 - Wild, 4 - Wild +4
     status_t in_deck; // 0 - discard, 1 - in deck, 2 - User Hand, 3 - Opponent Hand
     uint8_t global_index; // Index sent between devices
-    uint16_t* image_pointer; // Pointer to Spirit Image
-    int32_t x_position; // Sprite x position
-    int32_t y_position; // Sprite y position
-    int32_t x_velocity; // Sprite x velocity
-    int32_t y_velocity; // Sprite y velocity
+    uint8_t page; // Only for when in user's hand
+    uint32_t position; // determining where on page
 };
 typedef struct card card_t;
 
@@ -80,3 +79,4 @@ list_node_t* list_traverse(list_node_t* initial_node);
 
 
 #endif /* LIST_H_ */
+
