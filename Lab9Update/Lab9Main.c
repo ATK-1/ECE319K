@@ -20,6 +20,9 @@
 #include "Sound.h"
 #include "images/images.h"
 #include "List.h"
+#include "UART1.h"
+#include "UART2.h"
+#include "../inc/FIFO1.h"
 
 
 
@@ -32,6 +35,8 @@
 // I suggest you try 80MHz, but if it doesn't work, switch to 40MHz
 
 
+
+
 list_t Deck_List;
 list_t User_List;
 list_t Opp_List;
@@ -39,16 +44,51 @@ list_t Opp_List;
 list_node_t ListNodes[112];
 card_t Cards[112];
 
-card_t Card_Played;
+static uint16_t output_image[875];
 
-const char soundCardDown [3540] = {16,16,16,16,15,15,15,15,15,16,16,15,16,16,16,15,16,16,16,16,16,16,16,16,15,15,15,15,16,16,16,16,16,16,16,15,16,16,16,16,16,16,15,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,16,15,16,16,16,16,15,15,15,16,16,16,16,16,16,16,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,16,16,16,16,15,15,15,15,15,15,16,16,16,16,16,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,15,16,15,15,15,15,15,15,15,16,16,15,15,15,16,15,15,15,16,16,16,16,16,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,16,16,16,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,16,16,16,16,16,15,15,15,15,15,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,15,15,15,16,16,16,16,16,15,15,15,16,16,15,15,16,16,16,15,15,15,15,16,16,15,15,15,15,16,16,16,15,15,16,16,16,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,16,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,16,16,15,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,16,15,15,15,15,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,16,16,15,15,15,16,16,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,16,16,15,15,15,15,15,15,15,15,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,15,15,15,16,16,16,16,15,15,15,15,15,15,15,15,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,16,16,16,16,16,16,16,16,15,15,15,16,16,16,16,15,15,16,16,16,15,16,16,15,15,16,15,15,15,15,15,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,15,15,15,16,16,16,16,16,16,15,15,16,16,16,15,15,16,16,16,16,16,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,16,16,16,16,16,16,15,16,16,16,16,16,16,16,16,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,16,16,15,15,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,16,16,16,16,16,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,16,16,16,16,16,16,16,16,15,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,15,15,15,16,16,16,15,16,16,16,15,15,15,16,15,16,16,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,16,16,15,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,15,15,15,15,15,16,16,16,16,16,16,15,16,16,16,16,16,16,16,16,16,16,16,16,16,16,17,17,17,16,16,16,16,16,16,17,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,14,14,15,15,15,15,15,14,14,14,14,15,15,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,16,17,17,17,17,17,17,17,17,17,17,17,17,16,16,16,17,17,17,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,15,15,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,13,13,14,14,13,13,13,13,13,13,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,15,15,16,15,15,16,16,16,16,16,16,16,16,16,17,17,17,17,17,17,17,17,17,17,17,18,18,18,17,17,17,18,18,18,17,17,17,17,17,17,18,18,18,18,17,18,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,14,14,14,14,15,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,13,13,13,13,13,13,13,13,13,13,13,14,14,14,14,14,14,15,14,14,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,17,17,16,17,17,17,17,17,17,17,17,17,17,17,16,16,16,16,17,17,16,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,18,18,17,18,18,17,17,17,17,17,17,17,17,17,17,16,16,16,16,16,16,16,16,16,16,16,15,15,15,15,15,15,15,15,15,14,14,14,14,14,14,14,14,13,13,13,13,13,13,13,12,13,13,13,13,13,13,13,13,13,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,15,16,16,16,16,16,16,16,16,16,17,17,17,17,17,16,16,17,17,17,17,16,17,17,16,17,17,17,17,17,17,17,17,17,17,17,17,18,18,18,17,17,18,17,17,17,17,17,17,17,17,17,17,17,16,16,16,16,16,15,15,16,15,15,15,15,15,15,15,16,16,15,15,15,15,15,15,15,15,15,14,14,14,14,14,14,14,14,14,13,13,13,13,13,13,14,14,13,13,13,13,13,13,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,16,16,15,15,16,16,16,16,16,16,16,17,17,17,17,17,17,17,16,16,16,16,17,16,16,17,16,16,17,17,17,17,17,17,17,17,18,17,17,18,18,18,18,18,18,18,18,18,18,17,17,17,17,17,17,17,17,17,17,16,16,16,16,16,16,16,15,15,15,14,14,14,14,14,14,14,14,14,14,14,13,13,13,13,13,14,14,14,13,13,13,13,13,13,13,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,16,16,16,17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,17,17,17,17,17,17,16,16,16,15,15,15,15,15,15,15,15,15,14,15,14,14,14,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,15,14,14,14,14,13,14,14,14,14,13,13,14,14,14,14,14,14,14,14,14,14,14,14,14,15,15,15,15,16,16,16,16,16,16,16,16,16,16,16,17,17,17,17,17,17,17,17,17,17,17,17,18,17,17,17,17,17,18,18,18,18,18,17,17,17,17,17,17,17,16,16,16,16,16,16,16,16,15,16,16,16,16,15,15,15,15,15,15,16,15,15,15,15,15,15,14,14,15,15,15,15,16,15,15,14,14,14,14,14,13,13,14,14,14,14,15,15,15,15,15,15,15,15,15,15,15,15,16,15,15,16,15,15,15,15,15,15,16,16,16,16,15,16,16,16,17,17,17,17,16,16,16,16,16,16,17,17,17,17,17,16,17,17,17,17,17,16,16,16,16,15,15,15,15,15,14,14,15,14,15,16,15,15,15,15,15,15,15,15,14,14,14,14,14,14,14,15,14,14,14,15,14,14,14,14,14,15,15,14,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,16,16,15,16,16,16,16,17,17,17,18,17,17,17,17,17,17,17,17,17,17,17,16,17,17,17,18,18,17,18,18,18,17,18,19,19,18,18,18,18,18,18,18,18,18,18,18,17,17,17,17,17,17,17,16,16,15,15,15,15,15,15,14,14,14,14,14,14,14,15,15,14,13,13,13,13,13,13,14,13,13,13,13,12,12,12,13,13,13,13,13,12,12,12,12,12,13,13,12,13,13,13,13,13,14,14,14,14,14,14,14,14,15,15,15,15,15,15,16,15,15,15,16,16,16,16,16,16,17,17,17,17,17,17,18,18,18,19};
+color_t Play_Color;
+value_t Play_Value;
+
+list_node_t* Cursor_Node;
+
+uint8_t Page;
+uint32_t Position;
+semaphore_t Position_Semaphore = high;
+
+
+semaphore_t Page_Semaphore= low;
+semaphore_t Page_Update = low;
+uint32_t Switch_Mail;
+
+turn_t Turn;
+
+uint32_t Ani_Index;
+semaphore_t Ani_Semaphore = low;
+
+uint32_t Error=0; // If this is high then we have some type of error
+
+
+
+
+
 
 // Function Declarations
 void discard(struct list_node* removed_node);
 void draw(struct list* player_hand, struct list_node* card_node);
+void game_init(void);
 void draw_seven(void);
 uint32_t random_index(void);
 list_node_t* traverse_index(list_t* deck, uint32_t index);
+void read_input(void);
+void update_pages(void);
+void display_hand(void);
+void clear_hand(void);
+void display_hand_card(card_t* card);
+void manip_card_color(card_t* card);
+void update_arrow(void);
+
+
+//extern void wait(int buscycles);
 
 uint32_t *soundPointer;
 
@@ -61,31 +101,11 @@ void PLL_Init(void){ // set phase lock loop (PLL)
   Clock_Init80MHz(0);   // run this line for 80MHz
 }
 
-uint32_t M=1;
-uint32_t Random32(void){
-  M = 1664525*M+1013904223;
-  return M;
-}
-uint32_t Random(uint32_t n){
-  return (Random32()>>16)%n;
-}
 
 
-// games  engine runs at 30Hz
-void TIMG12_IRQHandler(void){uint32_t pos,msg;
-  if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
-    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
-    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
-// game engine goes here
-    // 1) sample slide pot
-    // 2) read input switches
-    // 3) move sprites
-    // 4) start sounds
-    // 5) set semaphore
-    // NO LCD OUTPUT IN INTERRUPT SERVICE ROUTINES
-    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
-  }
-}
+
+
+
 uint8_t TExaS_LaunchPadLogicPB27PB26(void){
   return (0x80|((GPIOB->DOUT31_0>>26)&0x03));
 }
@@ -154,32 +174,39 @@ int main2(void){ // main2
     //note: if you colors are weird, see different options for
     // ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
   ST7735_FillScreen(ST7735_BLACK);
-  ST7735_DrawBitmap(22, 159, PlayerShip0, 18,8); // player ship bottom
-  ST7735_DrawBitmap(53, 151, Bunker0, 18,5);
-  ST7735_DrawBitmap(42, 159, PlayerShip1, 18,8); // player ship bottom
-  ST7735_DrawBitmap(62, 159, PlayerShip2, 18,8); // player ship bottom
-  ST7735_DrawBitmap(82, 159, PlayerShip3, 18,8); // player ship bottom
-  ST7735_DrawBitmap(0, 9, SmallEnemy10pointA, 16,10);
-  ST7735_DrawBitmap(20,9, SmallEnemy10pointB, 16,10);
-  ST7735_DrawBitmap(40, 9, SmallEnemy20pointA, 16,10);
-  ST7735_DrawBitmap(60, 9, SmallEnemy20pointB, 16,10);
-  ST7735_DrawBitmap(80, 9, SmallEnemy30pointA, 16,10);
+//  ST7735_DrawBitmap(4,158,red_zero_noBG , 25,35);
+  ST7735_DrawBitmap(4,50,not_2 , 25,35);
+  ST7735_DrawBitmap(33,50,not_4 , 25,35);
+  ST7735_DrawBitmap(62,50,not_7 , 25,35);
+  ST7735_DrawBitmap(91,50,not_5 , 25,35);
 
-  for(uint32_t t=500;t>0;t=t-5){
-    SmallFont_OutVertical(t,104,6); // top left
-    Clock_Delay1ms(50);              // delay 50 msec
+  for(int16_t height=158; height != 48; height--){
+      ST7735_DrawBitmap(4,height,not_8 , 25,35);
+      ST7735_DrawBitmap(4,height+1,hori_line , 25,1);
+
+      ST7735_DrawBitmap(33,height,not_6 , 25,35);
+      ST7735_DrawBitmap(33,height+1,hori_line , 25,1);
+
+      ST7735_DrawBitmap(62,height,not_1 , 25,35);
+      ST7735_DrawBitmap(62,height+1,hori_line , 25,1);
+
+      ST7735_DrawBitmap(91,height,not_0 , 25,35);
+      ST7735_DrawBitmap(91,height+1,hori_line , 25,1);
+
+      Clock_Delay(2666667);
+
   }
-  ST7735_FillScreen(0x0000);   // set screen to black
-  ST7735_SetCursor(1, 1);
-  ST7735_OutString("GAME OVER");
-  ST7735_SetCursor(1, 2);
-  ST7735_OutString("Nice try,");
-  ST7735_SetCursor(1, 3);
-  ST7735_OutString("Earthling!");
-  ST7735_SetCursor(2, 4);
-  ST7735_OutUDec(1234);
+//
+//  for(int16_t height=158; height != 50; height--){
+//      ST7735_DrawBitmap(3,height,red_zero_BG , 27,37);
+//      ST7735_DrawBitmap(4,height+1,BlackLine , 25,1);
+//      Clock_Delay(2666667);
+//
+//  }
   while(1){
+
   }
+
 }
 
 // use main3 to test switches and LEDs
@@ -221,8 +248,77 @@ int main4(void){ uint32_t last=0,now;
     // modify this to test all your sounds
   }
 }
+
+
+
+
+
+
+
+
+// games  engine runs at 30Hz
+void TIMG12_IRQHandler(void){uint32_t pos,msg;
+  if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
+    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+// game engine goes here
+    static uint32_t old_position;
+    static uint32_t old_switch=0;
+    // 1) sample slide pot
+    Position = (ADCin() / 1025);
+    if(Position != old_position){
+        Position_Semaphore = high;
+    }
+    old_position = Position;
+    // 2) read input switches
+    Switch_Mail = Switch_In();
+    if(Switch_Mail != old_switch && (Turn != animation)){
+        if(Switch_Mail == 8 && Page < (User_List.length /4)){
+            Page++;
+            Page_Semaphore = high;
+        }
+        else if(Switch_Mail == 2 && Page != 0){
+            Page--;
+            Page_Semaphore = high;
+        }
+        else if(Switch_Mail == 16 && Turn == user_turn){
+            Turn = animation;
+            Ani_Index = P1_X[0];
+            manip_card_color(Cursor_Node->card_pointer);
+            discard(Cursor_Node);
+            //Page_Update = high;
+        }
+    }
+    if(Turn == animation){
+        Ani_Index--;
+        if(Ani_Index == 0){
+            Page_Semaphore = high;
+            Turn = user_turn;
+        }
+        else{
+            Ani_Semaphore = high;
+        }
+    }
+
+
+
+    // 3) move sprites
+    // 4) start sounds
+    // 5) set semaphore
+    // NO LCD OUTPUT IN INTERRUPT SERVICE ROUTINES
+    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+  }
+}
+
+
+
+
+
+
+
+
 // ALL ST7735 OUTPUT MUST OCCUR IN MAIN
-int main5(void){ // final main
+int main(void){ // final main
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
@@ -232,21 +328,239 @@ int main5(void){ // final main
   ST7735_FillScreen(ST7735_BLACK);
   ADCinit();     //PB18 = ADC1 channel 5, slidepot
   Switch_Init(); // initialize switches
-  LED_Init();    // initialize LED
+  //LED_Init();    // initialize LED
   //Sound_Init(1,1);  // initialize sound
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
     // initialize interrupts on TimerG12 at 30 Hz
+
+  // Initialize Game
+  game_init();
+  draw_seven();
+  update_pages();
+  display_hand();
+  Cursor_Node = User_List.head;
+
   TimerG12_IntArm(80000000/30,2);
   // initialize all data structures
   __enable_irq();
 
   while(1){
-    // wait for semaphore
+      if(Position_Semaphore == high){
+          update_arrow();
+          Cursor_Node = traverse_index(&User_List,(Page*4)+Position);
+      }
+      if(Page_Update == high){
+          update_pages();
+      }
+      if(Page_Semaphore == high){
+              display_hand();
+              clear_hand();
+              Page_Semaphore = low;
+              Cursor_Node = traverse_index(&User_List,(Page*4)+Position);
+
+      }
+
+      if(Ani_Semaphore == high){
+          if(Position == 0){
+              ST7735_DrawBitmap(P1_X[Ani_Index],P1_Y[Ani_Index],output_image,25,35);
+              ST7735_DrawBitmap(P1_X[Ani_Index]-1,P1_Y[Ani_Index]+1,hori_line,27,1);
+              ST7735_DrawBitmap(P1_X[Ani_Index]-1,P1_Y[Ani_Index]+1,vert_line,1,37);
+          }
+          else if(Position == 1){
+              ST7735_DrawBitmap(P2_X[Ani_Index],P1_Y[Ani_Index],output_image,25,35);
+              ST7735_DrawBitmap(P2_X[Ani_Index]-1,P1_Y[Ani_Index]+1,hori_line,27,1);
+              ST7735_DrawBitmap(P2_X[Ani_Index]-1,P1_Y[Ani_Index]+1,vert_line,1,37);
+          }
+          else if(Position == 2){
+              ST7735_DrawBitmap(P3_X[Ani_Index],P1_Y[Ani_Index],output_image,25,35); // Unfinished
+              ST7735_DrawBitmap(P3_X[Ani_Index]-1,P1_Y[Ani_Index]+1,hori_line,27,1);
+              ST7735_DrawBitmap(P3_X[Ani_Index]+26,P1_Y[Ani_Index]+1,vert_line,1,37);
+          }
+          else if(Position == 3){
+              ST7735_DrawBitmap(P4_X[Ani_Index],P1_Y[Ani_Index],output_image,25,35); // Unfinished
+              ST7735_DrawBitmap(P4_X[Ani_Index]-1,P1_Y[Ani_Index]+1,hori_line,27,1);
+              ST7735_DrawBitmap(P4_X[Ani_Index]+26,P1_Y[Ani_Index]+1,vert_line,1,37);
+          }
+          Ani_Semaphore = low;
+      }
+      // wait for semaphore
        // clear semaphore
-       // update ST7735R
+
+
+      // update ST7735R
     // check for end game or level switch
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int main6(void){ // Main 6 Testing game_init
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    game_init();
+    list_node_t* node;
+    uint8_t card_value;
+    uint8_t card_color;
+    while(1){
+        node= Deck_List.head;
+        for(uint32_t index=0; index<112; index++){
+            card_value = node->card_pointer->value;
+            card_color = node->card_pointer->color;
+            node = list_traverse(node);
+        }
+    }
+}
+
+
+
+int main7(void){ // Main 7 Testing Random Index
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    ADCinit();
+    game_init();
+    uint32_t output1=0;
+    while(1){
+        if (Deck_List.length < 5){
+            Deck_List.length = 112;
+        }
+        output1 = random_index();
+        Deck_List.length--;
+    }
+
+
+}
+
+int main8(void){ // Main 8 Testing Draw 7
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    ADCinit();
+    ST7735_InitPrintf();
+    ST7735_FillScreen(ST7735_BLACK);
+    game_init();
+    draw_seven();
+    update_pages();
+    display_hand();
+
+    while(1){
+
+    }
+}
+
+
+int main9(void){ // Main 9 Testing traverse
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    ADCinit();
+    game_init();
+    uint32_t distance;
+    list_node_t* output;
+    while(1){
+        distance=0;
+        for(uint32_t cycle=0; cycle<112; cycle++){
+            output = traverse_index(&Deck_List, cycle);
+            distance++;
+        }
+    }
+
+}
+
+
+int main10(void){ // Main 10 Testing - Add this to
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    ADCinit();
+    ST7735_InitPrintf();
+    ST7735_FillScreen(ST7735_BLACK);
+    game_init();
+    list_node_t* node_pointer;
+    uint32_t randindex;
+    for(uint32_t counter=0; counter < 7; counter++){ // For Draw 7 command we are expecting 15 cards total - 7 for this user, 7 for opponent and 1 play card
+        randindex = random_index();
+        node_pointer = traverse_index(&Deck_List, randindex);
+        Fifo1_Put(0x81);
+        Fifo1_Put(node_pointer->card_pointer->global_index);
+        read_input();
+
+
+        randindex = random_index();
+        node_pointer = traverse_index(&Deck_List, randindex);
+        Fifo1_Put(0x82);
+        Fifo1_Put(node_pointer->card_pointer->global_index);
+        read_input();
+        }
+     randindex = random_index();
+     node_pointer = traverse_index(&Deck_List, randindex);
+     Fifo1_Put(0x80);
+     Fifo1_Put(node_pointer->card_pointer->global_index);
+     read_input();
+
+
+     update_pages();
+     display_hand();
+     while(1){
+
+     }
+
+}
+
+
+int main11(void){ // Main 11 Trying to test display hand
+    __disable_irq();
+
+    PLL_Init(); // set bus speed
+    LaunchPad_Init();
+    ST7735_InitPrintf();
+    //note: if you colors are weird, see different options for
+    // ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
+    ST7735_FillScreen(ST7735_BLACK);
+    ADCinit();
+    game_init();
+    list_node_t* node;
+    node = traverse_index(&Deck_List, 0);
+    draw(&User_List,node);
+
+    node->card_pointer->page = 0;
+    node->card_pointer->position=0;
+    display_hand_card(node->card_pointer);
+//    ST7735_DrawBitmap(4,158,not_2, 25,35);
+
+    while(1){
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -398,32 +712,63 @@ void draw_seven(void){ // This command assumes that this computer has priority i
          randomindex = random_index();        // 0 <= randomindex <= Deck_List.length - 1
          card_node = traverse_index(&Deck_List, randomindex);
          draw(&User_List, card_node); // Place one random card into the user's hand
-         //Output to UART
+         UART1_OutChar(0x81);
+         UART1_OutChar(card_node->card_pointer->global_index); //Output to UART
 
-         //Wait some bus cycles so that we don't over fill the Transmit FIFO
+         Clock_Delay(100); // Don't over fill FIFOs
+
 
          //Draw for Opponent
 
          randomindex = random_index();        // 0 <= random_index <= Deck_List.length - 1
          card_node = traverse_index(&Deck_List, randomindex);
          draw(&Opp_List, card_node); // Place one random card into the user's hand
-         //Output to UART
+         UART1_OutChar(0x82);
+         UART1_OutChar(card_node->card_pointer->global_index); //Output to UART
+
+         Clock_Delay(100); // Don't over fill FIFOs
 
          // Wait bus cycles
 
 
     }
+    // Removing a card from deck to be starter card (has to be a number)
+    do{
+        randomindex = random_index();
+        card_node = traverse_index(&Deck_List, randomindex);
+    }
+    while(card_node->card_pointer->value > 9);
+
+    UART1_OutChar(0x80);
+    UART1_OutChar(card_node->card_pointer->global_index); //Output to UART
+
+    Play_Color = card_node->card_pointer->color;
+    Play_Value = card_node->card_pointer->value;
+    card_node->card_pointer->in_deck = dis;
+
+    manip_card_color(card_node->card_pointer);
+    ST7735_DrawBitmap(51,75,output_image,25,35);
+
+    list_remove(&Deck_List,card_node);
+    list_add(&Deck_List,card_node);
+
 }
 
 uint32_t random_index(void){
+    uint32_t test=0;
     if (Deck_List.length == 0) {
         return 0;
     }
     static uint32_t seed=0;
     if(seed==0){
         seed = ADCin();
+        test = ADCin();
+        seed = test;
+
+        test=seed;
     }
     seed = 1664525*seed+1013904223;
+    test = seed;
     return (seed>>16)%Deck_List.length;
 
 }
@@ -445,74 +790,117 @@ list_node_t* traverse_index(list_t* deck, uint32_t index){
 
 
 
+void read_input(void){ // Need to add in while loop to wait for fifo to be full
+    static uint8_t lostchar = 0;
+    uint8_t input; // This will be the instruction then the data
+    list_node_t* temp_node;
 
+    input = Fifo1_Get(); // Instruction
+    if((input & 0x80) == 0){
+        lostchar = input;
+        Error=1;
+        return;
+    }
+    else{
+        input = input & 0x7F;
+    }
+    if(input==0){
+        input = Fifo1_Get();
+        Play_Color = Cards[input].color;
+        Play_Value = Cards[input].value;
+        Cards[input].in_deck = dis;
+        temp_node = &ListNodes[input];
+        list_remove(&Deck_List,temp_node); // Removes Card From Deck
+        list_add(&Deck_List,temp_node); // Adds Card to Player Hand
+    }
+    else if(input == 1){
+        input = Fifo1_Get();
+        temp_node = &ListNodes[input];
+        draw(&Opp_List, temp_node);
 
-int main6(void){ // Main 6 Testing game_init
-    PLL_Init(); // set bus speed
-    LaunchPad_Init();
-    game_init();
-    list_node_t* node;
-    uint8_t card_value;
-    uint8_t card_color;
-    while(1){
-        node= Deck_List.head;
-        for(uint32_t index=0; index<112; index++){
-            card_value = node->card_pointer->value;
-            card_color = node->card_pointer->color;
-            node = list_traverse(node);
+    }
+    else if(input == 2){
+        input = Fifo1_Get();
+        temp_node = &ListNodes[input];
+        draw(&User_List, temp_node);
+
+    }
+}
+
+void update_pages(void){
+    list_node_t* node_pointer= User_List.head;
+    for(uint32_t index=0; index < User_List.length; index++){
+        node_pointer->card_pointer->page = index/4;
+        node_pointer->card_pointer->position = index%4;
+        node_pointer = node_pointer->next;
+    }
+}
+
+void display_hand(void){
+    list_node_t* node_pointer= User_List.head;
+    for(uint32_t index=0; index < User_List.length; index++){
+        if(node_pointer->card_pointer->page == Page){
+            display_hand_card(node_pointer->card_pointer);
+
+        }
+        node_pointer = node_pointer->next;
+    }
+}
+
+void clear_hand(void){
+    if(Page == (User_List.length / 4)){
+        uint32_t index = User_List.length%4;
+        while(index != 0 && index !=4){
+            ST7735_DrawBitmap((4+(index*30)),158,blankarrow, 25,35);
+            index++;
         }
     }
 }
 
 
 
-int main7(void){ // Main 7 Testing Random Index
-    PLL_Init(); // set bus speed
-    LaunchPad_Init();
-    ADCinit();
-    game_init();
-    uint32_t output1=0;
-    while(1){
-        if (Deck_List.length < 5){
-            Deck_List.length = 112;
-        }
-        output1 = random_index();
-        Deck_List.length--;
-    }
 
 
-}
 
-int main(void){ // Main 8 Testing Draw 7
-    PLL_Init(); // set bus speed
-    LaunchPad_Init();
-    ADCinit();
-    game_init();
-    draw_seven();
-    while(1){
 
-    }
+
+void display_hand_card(card_t* card){
+    static short x_values[5]={4,34,64,94,};
+    manip_card_color(card);
+    ST7735_DrawBitmap(x_values[card->position],158,output_image,25,35);
 }
 
 
-int main9(void){ // Main 9 Testing stupid traverse
-    PLL_Init(); // set bus speed
-    LaunchPad_Init();
-    ADCinit();
-    game_init();
-    uint32_t distance;
-    list_node_t* output;
-    while(1){
-        distance=0;
-        for(uint32_t cycle=0; cycle<112; cycle++){
-            output = traverse_index(&Deck_List, cycle);
-            distance++;
+void manip_card_color(card_t* card){
+    static uint16_t colors[4]={0xF7C8,0xE920,0x03FF,0xFC9F};
+    uint16_t color = colors[card->color];
+    if(card->value == 13){
+        uint16_t* immask = wilds[(card->power)>>2];
+        for(uint32_t index1=0; index1<875;index1++){
+            output_image[index1] = immask[index1];
         }
     }
-
+    else{
+        uint16_t* immask = mask[card->value];
+        for(uint32_t index=0; index<875;index++){
+            output_image[index] = ~(immask[index] & color);
+        }
+    }
 }
 
 
 
+
+
+void update_arrow(void){
+
+    static short x_values[4]={4,34,64,94};
+    static uint32_t old_position = 0;
+    ST7735_DrawBitmap(x_values[old_position],120,blankarrow, 25,35);
+    ST7735_DrawBitmap(x_values[Position],120,arrow, 25,35);
+
+    old_position = Position;
+    Position_Semaphore = low;
+}
 
 
