@@ -440,16 +440,12 @@ int main(void){ // final main
       // User Draw
       if(User_Draw == high){
           user_draw();
-          update_pages();
 
-          display_hand();
-          clear_hand();
-          Cursor_Node = traverse_index(&User_List,(Page*4)+Position);
           display_card_numbers();
 
 
           User_Draw = low;
-          Page_Update = low;
+          Page_Update = high;
           Page_Semaphore = low;
           Turn = opponent_turn;
           }
@@ -458,16 +454,12 @@ int main(void){ // final main
       if(Page_Update == high){
           update_pages();
 
-          display_hand();
-          clear_hand();
-          Cursor_Node = traverse_index(&User_List,(Page*4)+Position);
-          display_card_numbers();
 
           Page_Update = low;
-          Page_Semaphore = low;
+          Page_Semaphore = high;
       }
       // Update Displayed Cards
-      if(Page_Semaphore == high){
+      if(Page_Semaphore == high && User_List.length >= (Page*4)+Position+1){
               display_hand();
               clear_hand();
               Page_Semaphore = low;
@@ -847,7 +839,7 @@ void game_init(void){
         Cards[index].value= 10; // Skip
         Cards[index].color = color;
         Cards[index].in_deck = deck;
-        Cards[index].power = skip;
+        Cards[index].power = skip_turn;
         Cards[index].global_index = index;
         ListNodes[index].card_pointer = &Cards[index];
         list_add(&Deck_List, &ListNodes[index]);
@@ -856,7 +848,7 @@ void game_init(void){
         Cards[index].value= 10; // Skip
         Cards[index].color = color;
         Cards[index].in_deck = deck;
-        Cards[index].power = skip;
+        Cards[index].power = skip_turn;
         Cards[index].global_index = index;
         ListNodes[index].card_pointer = &Cards[index];
         list_add(&Deck_List, &ListNodes[index]);
@@ -865,7 +857,7 @@ void game_init(void){
         Cards[index].value= 11; // Reverse
         Cards[index].color = color;
         Cards[index].in_deck = deck;
-        Cards[index].power = skip;
+        Cards[index].power = skip_turn;
         Cards[index].global_index = index;
         ListNodes[index].card_pointer = &Cards[index]; // Init Node
         list_add(&Deck_List, &ListNodes[index]);
@@ -874,7 +866,7 @@ void game_init(void){
         Cards[index].value= 11; // Reverse
         Cards[index].color = color;
         Cards[index].in_deck = deck;
-        Cards[index].power = skip;
+        Cards[index].power = skip_turn;
         Cards[index].global_index = index;
         ListNodes[index].card_pointer = &Cards[index]; // Init Node
         list_add(&Deck_List, &ListNodes[index]);
@@ -1261,3 +1253,4 @@ void check_win(void){
         }
     }
 }
+
